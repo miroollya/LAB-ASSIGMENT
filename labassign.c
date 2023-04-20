@@ -56,9 +56,11 @@ int main() {
             printf("Error forking child %d\n", i+1);
             exit(1);
         } else if (pid == 0) {
+            close(pipe_fd[i][1]);
             child_process(num_child); 
             exit(0);
         } else {
+            close(pipe_fd[i][0]);
             child_pid[num_child] = pid; 
             num_child++;
             if (num_child == MAX) {
@@ -76,3 +78,4 @@ int main() {
     return 0;
     
 }
+
