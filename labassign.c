@@ -10,10 +10,10 @@
 #define READ 0
 
 int num_child = 0;
-pid_t child_pid[MAX];    
-int pipe_fd[MAX][2];     
+pid_t child_pid[MAX];
+int pipe_fd[MAX][2];
 
-
+//print message and terminate the program
 void sigint_handler(int sig) {
     printf("\n\n  Ctrl+c Detected!Exit The Program.\n");
     exit(0);
@@ -21,7 +21,7 @@ void sigint_handler(int sig) {
 
 
 void parent_process() {
-    for (int i=0; i< MAX; i++) { 
+    for (int i=0; i< MAX; i++) {
         sleep(1);
         fflush(stdin);
         printf("\nEnter message to send to child %d: ", i+1);
@@ -37,7 +37,6 @@ void parent_process() {
 
 void child_process(int id) {
     printf("Child %d reading from pipe\n", id+1);
-
     char message[MSG];
     read(pipe_fd[id][0], message, sizeof(message));
     printf("Child %d received message: %s", id+1, message);
@@ -46,7 +45,7 @@ void child_process(int id) {
 int main() {
     printf("ctrl+c to exit the program\n");
     signal(SIGINT, sigint_handler);
-    
+
 
     for (int i = 0; i < MAX; i++) {
         if (pipe(pipe_fd[i]) == -1) {
@@ -58,26 +57,28 @@ int main() {
             printf("Error forking child %d\n", i+1);
             exit(1);
         } else if (pid == 0) {
+	   //child process
             close(pipe_fd[i][WRITE]);
-            child_process(num_child); 
+            child_process(num_child);
             exit(0);
         } else {
+	   //parent process
             close(pipe_fd[i][READ]);
-            child_pid[num_child] = pid; 
+            child_pid[num_child] = pid;
             num_child++;
             if (num_child == MAX) {
                 parent_process();
                 pause();
             }
-        }  
+        }
     }
-    
+
     for (int i = 0; i < num_child; i++) {
         waitpid(child_pid[i], NULL, 0);
     }
 
-    
+
     return 0;
-    
+
 }
 
