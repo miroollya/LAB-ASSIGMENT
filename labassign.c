@@ -6,6 +6,8 @@
 
 #define MAX 3
 #define MSG 100
+#define WRITE 1
+#define READ 0
 
 int num_child = 0;
 pid_t child_pid[MAX];    
@@ -56,11 +58,11 @@ int main() {
             printf("Error forking child %d\n", i+1);
             exit(1);
         } else if (pid == 0) {
-            close(pipe_fd[i][1]);
+            close(pipe_fd[i][WRITE]);
             child_process(num_child); 
             exit(0);
         } else {
-            close(pipe_fd[i][0]);
+            close(pipe_fd[i][READ]);
             child_pid[num_child] = pid; 
             num_child++;
             if (num_child == MAX) {
